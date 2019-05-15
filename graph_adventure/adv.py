@@ -65,19 +65,29 @@ traversalPath = []
 # set up visited traversal path with {0: {'n': '?'}, 1: {'n': '?'}}
 q = Queue()
 visited = {}
-q.enqueue(player)
+q.enqueue(player.currentRoom)
 
 while q.size() > 0:
     v = q.dequeue()
-    if v.currentRoom.id not in visited:
-        visited.update({v.currentRoom.id:{}})
+    if v.id not in visited:
+        visited.update({v.id:{}})
         d = {}
-        for direction in v.currentRoom.getExits():
+        for direction in v.getExits():
             d[direction] = '?'
-            v.travel(direction)
-            print(v.currentRoom.id)
-            q.enqueue(v)
-        visited.update({v.currentRoom.id: d})
+            player.travel(direction)
+            q.enqueue(player.currentRoom)
+            print(player.currentRoom.id)
+            if(direction == 'n'):
+                player.travel('s')
+            elif(direction == 's'):
+                player.travel('n')
+            elif(direction == 'e'):
+                player.travel('w')
+            elif(direction == 'w'):
+                player.travel('e')
+            print(player.currentRoom.id)
+            print('---')
+        visited[v.id] = d
 
 print(visited)
 
