@@ -94,8 +94,16 @@ oppositeDirection = {
     'e': 'w'
 }
 
+def move(prevRoomId, directionToTravel):
+    traversalPath.append(directionToTravel)
+    player.travel(directionToTravel)
+    graph[prevRoom][directionToTravel] = player.currentRoom.id
+    q.enqueue(player.currentRoom)
+
 q = Queue()
 q.enqueue(player.currentRoom)
+directionTraveled = None
+prevRoom = None
 
 while q.size() > 0:
     v = q.dequeue()
@@ -105,19 +113,39 @@ while q.size() > 0:
         for exit in v.getExits():
             graph[currentRoomId][exit] = '?'
 
-    #check to see what directions there are
+    if directionTraveled:
+        inverseDirection = oppositeDirection[directionTraveled]
+        graph[player.currentRoom.id][inverseDirection] = prevRoom
 
-    if graph[currentRoomId]['n'] == '?':
-        directionToTravel = 'n'
-        traversalPath.append(directionToTravel)
-        player.travel(directionToTravel)
-        # q.enqueue(player.currentRoom)
+    # make the direction based on one direction and available
+    foundExit = False
+    directionStart = 0
 
-def move(self, currentRoomId, directionToTravel):
+    while foundExit == False and directionStart < 4:
+        direction = ['s', 'n', 'w', 'e']
+        pickedDirection = direction[directionStart]
+
+        if pickedDirection in graph[currentRoomId].keys() and graph[currentRoomId][pickedDirection] == '?':
+            directionTraveled = pickedDirection
+            prevRoom = currentRoomId
+            move(currentRoomId, pickedDirection)
+            foundExit = True
+        else:
+            directionStart += 1
+    
+    
 
 
-print('graph', graph)
+    # bfs for last room that has an '?', return path and move player there, add moves to traversal path
+        
+
+
+
+
+
+print('Graph', graph)
 print('Length of traversalPath', len(traversalPath))
+print('Traversal path', traversalPath)
 
 # TRAVERSAL TEST
 visited_rooms = set()
