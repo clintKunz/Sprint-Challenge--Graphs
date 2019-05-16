@@ -105,11 +105,16 @@ while q.size() > 0:
         for exit in v.getExits():
             graph[currentRoomId][exit] = '?'
 
+    #check to see what directions there are
+
     if graph[currentRoomId]['n'] == '?':
         directionToTravel = 'n'
         traversalPath.append(directionToTravel)
         player.travel(directionToTravel)
         # q.enqueue(player.currentRoom)
+
+def move(self, currentRoomId, directionToTravel):
+
 
 print('graph', graph)
 print('Length of traversalPath', len(traversalPath))
