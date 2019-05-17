@@ -9,6 +9,45 @@ world = World()
 
 # You may uncomment the smaller graphs for development and testing purposes.
 
+## Helpers
+class Queue():
+    def __init__(self):
+        self.queue = []
+    def enqueue(self, value):
+        self.queue.append(value)
+    def dequeue(self):
+        if self.size() > 0:
+            return self.queue.pop(0)
+        else:
+            return None
+    def size(self):
+        return len(self.queue)
+    
+def bfs(self, starting_vertex, destination_vertex):
+    """
+    Return a list containing the shortest path from
+    starting_vertex to destination_vertex in
+    breath-first order.
+    """
+    q = Queue()
+    visited = set()
+
+    q.enqueue([starting_vertex])
+
+    while q.size() > 0:
+        v = q.dequeue()
+        node = v[-1]
+
+        if node not in visited:
+            for neighbor in self.friendships[node]:
+                path = list(v)
+                path.append(neighbor)
+                q.enqueue(path)
+                if neighbor == destination_vertex:
+                    return path
+            
+            visited.add(node)  
+
 # roomGraph={0: [(3, 5), {'n': 1}], 1: [(3, 6), {'s': 0, 'n': 2}], 2: [(3, 7), {'s': 1}]}
 # roomGraph={0: [(3, 5), {'n': 1, 's': 5, 'e': 3, 'w': 7}], 1: [(3, 6), {'s': 0, 'n': 2}], 2: [(3, 7), {'s': 1}], 3: [(4, 5), {'w': 0, 'e': 4}], 4: [(5, 5), {'w': 3}], 5: [(3, 4), {'n': 0, 's': 6}], 6: [(3, 3), {'n': 5}], 7: [(2, 5), {'w': 8, 'e': 0}], 8: [(1, 5), {'e': 7}]}
 # roomGraph={0: [(3, 5), {'n': 1, 's': 5, 'e': 3, 'w': 7}], 1: [(3, 6), {'s': 0, 'n': 2}], 2: [(3, 7), {'s': 1}], 3: [(4, 5), {'w': 0, 'e': 4}], 4: [(5, 5), {'w': 3}], 5: [(3, 4), {'n': 0, 's': 6}], 6: [(3, 3), {'n': 5, 'w': 11}], 7: [(2, 5), {'w': 8, 'e': 0}], 8: [(1, 5), {'e': 7}], 9: [(1, 4), {'n': 8, 's': 10}], 10: [(1, 3), {'n': 9, 'e': 11}], 11: [(2, 3), {'w': 10, 'e': 6}]}
@@ -21,8 +60,166 @@ player = Player("Name", world.startingRoom)
 
 
 # FILL THIS IN
-traversalPath = ['n', 's']
+traversalPath = []
 
+# set up visited traversal path with {0: {'n': '?'}, 1: {'n': '?'}}
+# q = Stack()
+# visited = {}
+# q.push(player.currentRoom)
+
+# while q.size() > 0:
+#     v = q.pop()
+#     if v.id not in visited:
+#         visited.update({v.id:{}})
+#         d = {}
+#         # place directions you can go with it in visited
+#         for direction in v.getExits():
+#             d[direction] = '?'
+#         visited[v.id] = d
+#     #pick first direction in list and follow it until the end
+    
+
+#             #move there and queue room 
+#             # traversalPath.append(direction)
+#             # player.travel(direction)
+#             # q.enqueue(player.currentRoom)
+#             # break
+
+graph = {}
+
+oppositeDirection = {
+    'n': 's',
+    's': 'n',
+    'w': 'e',
+    'e': 'w'
+}
+
+
+q = Queue()
+q.enqueue(player.currentRoom)
+directionTraveled = None
+prevRoom = None
+
+def move(prevRoomId, directionToTravel):
+    global prevRoom 
+    prevRoom = prevRoomId
+    global directionTraveled 
+    directionTraveled = directionToTravel
+
+    traversalPath.append(directionToTravel)
+    # player.currentRoom.connectRooms(directionToTravel, player.currentRoom)
+    player.travel(directionToTravel)
+    # inverseDirection = oppositeDirection[directionToTravel]
+    # graph[player.currentRoom.id][inverseDirection] = prevRoomId
+    graph[prevRoomId][directionToTravel] = player.currentRoom.id
+    q.enqueue(player.currentRoom)
+
+def bfsMove(prevRoomId, directionToTravel):
+    global prevRoom 
+    prevRoom = prevRoomId
+    global directionTraveled 
+    directionTraveled = directionToTravel
+
+    traversalPath.append(directionToTravel)
+    # player.currentRoom.connectRooms(directionToTravel, player.currentRoom)
+    player.travel(directionToTravel)
+    graph[prevRoomId][directionToTravel] = player.currentRoom.id
+
+def bfs(currentId, target):
+    queue = Queue()
+    visited = set()
+    queue.enqueue([currentId])
+    
+    while queue.size() > 0:
+        v = queue.dequeue()
+        node = v[-1]
+
+        if node not in visited:
+            for direction in graph[node]:
+                path = list(v)
+                path.append(graph[node][direction])
+                queue.enqueue(path)
+                if graph[node][direction] == target:
+                    return path
+
+        visited.add(node)    
+    # newMove = oppositeDirection[prevMove]
+    # queue.enqueue(player.currentRoom)
+    
+    # while queue.size() > 0:
+    #     room = queue.dequeue()
+
+    #     for direction in room.getExits():
+    #         if graph[room.id][direction] == '?':
+    #             directionTraveled = direction
+    #             move(room.id, direction)
+    #             return None
+        
+    #     if newMove in graph[room.id].keys():
+    #         player.travel(newMove)
+    #         queue.enqueue(player.currentRoom)
+    #     else: 
+    #         for direction in room.getExits():
+    #             if direction is not oppositeDirection[newMove]:
+    #                 player.travel(direction)
+    #                 queue.enqueue(player.currentRoom)
+
+while q.size() > 0:
+    v = q.dequeue()
+    currentRoomId = v.id
+    if currentRoomId not in graph:
+        graph[currentRoomId] = {}
+        if len(graph) == 500:
+            break
+        for exit in v.getExits():
+            graph[currentRoomId][exit] = '?'
+
+    if prevRoom is not None:
+        inverseDirection = oppositeDirection[directionTraveled]
+        graph[player.currentRoom.id][inverseDirection] = prevRoom
+
+    # make the direction based on one direction and available
+    foundExit = False
+    directionStart = 0
+
+    while foundExit == False and directionStart < 4:
+
+        direction = []
+        for key in player.currentRoom.getExits():
+            direction.append(key)
+        random.shuffle(direction)
+        pickedDirection = direction[directionStart]
+
+        if pickedDirection in graph[currentRoomId].keys() and graph[currentRoomId][pickedDirection] == '?':
+            # directionTraveled = pickedDirection
+            move(currentRoomId, pickedDirection)
+            foundExit = True
+        else:
+            if directionStart == len(direction) - 1: 
+                getToUnexplored = bfs(currentRoomId, '?')
+                print(getToUnexplored)
+                for index in range(len(getToUnexplored)-2):
+                    for direction in graph[getToUnexplored[index]]:
+                        if graph[getToUnexplored[index]][direction] == getToUnexplored[index + 1]:
+                            bfsMove(player.currentRoom.id, direction)
+                            break
+                q.enqueue(player.currentRoom)
+                foundExit = True
+            directionStart += 1
+    
+    
+
+
+    # bfs for last room that has an '?', return path and move player there, add moves to traversal path
+        
+
+
+
+print('ha', player.currentRoom.getRoomInDirection('s'))
+
+print('Graph', len(graph[player.currentRoom.id].keys()))
+print('Length of traversalPath', len(traversalPath))
+print('Traversal path', traversalPath)
 
 # TRAVERSAL TEST
 visited_rooms = set()
