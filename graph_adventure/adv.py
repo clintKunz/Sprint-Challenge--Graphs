@@ -187,6 +187,7 @@ while q.size() > 0:
         direction = []
         for key in player.currentRoom.getExits():
             direction.append(key)
+        random.shuffle(direction)
         pickedDirection = direction[directionStart]
 
         if pickedDirection in graph[currentRoomId].keys() and graph[currentRoomId][pickedDirection] == '?':
